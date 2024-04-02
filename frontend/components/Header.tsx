@@ -7,8 +7,11 @@ import { useState } from "react"
 import MenuIcon from "@mui/icons-material/Menu"
 import CloseIcon from "@mui/icons-material/Close"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import { useSession } from "next-auth/react"
 
 const Header: React.FC = () => {
+  const { data: userSession } = useSession()
+
   const router = useRouter()
 
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -28,7 +31,13 @@ const Header: React.FC = () => {
           <AccountCircleIcon
             fontSize="large"
             className="cursor-pointer text-4xl"
-            onClick={() => router.push("/profile")}
+            onClick={() => {
+              if (userSession) {
+                router.push("/profile")
+              } else {
+                router.push("/auth/signin")
+              }
+            }}
           />
 
           {isOpen ? (
@@ -51,7 +60,11 @@ const Header: React.FC = () => {
               <Link href="/about">About</Link>
             </li>
             <li className="hover:border-b-2 border-b-black ">
-              <Link href="/contact">Contact Us</Link>
+              {userSession ? (
+                <Link href="/contact">Contact Us</Link>
+              ) : (
+                <Link href="/auth/signin">Contact Us</Link>
+              )}
             </li>
           </ul>
 
@@ -66,7 +79,11 @@ const Header: React.FC = () => {
                     <Link href="/about">About</Link>
                   </li>
                   <li className="hover:border-b-2" onClick={handleIsOpen}>
-                    <Link href="/contact">Contact Us</Link>
+                    {userSession ? (
+                      <Link href="/contact">Contact Us</Link>
+                    ) : (
+                      <Link href="/auth/signin">Contact Us</Link>
+                    )}
                   </li>
                 </ul>
               </nav>
