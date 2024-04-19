@@ -131,7 +131,7 @@ contract VoteCreationNFT is ERC721URIStorage, Ownable {
     }
 
     /**
-     * @dev helper function to be used in the VoteManagement Contract to updated NFT Metadata
+     * @dev helper function to be used in the VoteManagement Contract to update NFT Metadata
      */
     function setTokenURI(uint256 _tokenId) external {
         _setTokenURI(_tokenId, getTokenURI(_tokenId));

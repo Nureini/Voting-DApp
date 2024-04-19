@@ -23,14 +23,18 @@ contract VoterRegistrationTest is Test {
     function testRevertsIfAlreadyRegistered() public {
         vm.startPrank(voterRegistration.owner());
         voterRegistration.registerVoter(address(this));
-        vm.expectRevert(VoterRegistration.VoterRegistration__VoterAlreadyRegistered.selector);
+        vm.expectRevert(
+            VoterRegistration.VoterRegistration__VoterAlreadyRegistered.selector
+        );
         voterRegistration.registerVoter(address(this));
         vm.stopPrank();
     }
 
     function testRevertsIfNotAlreadyRegistered() public {
         vm.startPrank(voterRegistration.owner());
-        vm.expectRevert(VoterRegistration.VoterRegistration__VoterNotRegistered.selector);
+        vm.expectRevert(
+            VoterRegistration.VoterRegistration__VoterNotRegistered.selector
+        );
         voterRegistration.unregisterVoter(address(this));
         vm.stopPrank();
     }

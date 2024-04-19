@@ -3,13 +3,13 @@
 import "@rainbow-me/rainbowkit/styles.css"
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit"
 import { WagmiProvider } from "wagmi"
-import { polygonMumbai } from "wagmi/chains"
+import { polygonAmoy } from "wagmi/chains"
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 
 const config = getDefaultConfig({
   appName: "Election DApp",
   projectId: "f004e7d4bbe846b8125d9ede1ffb3fb7",
-  chains: [polygonMumbai],
+  chains: [polygonAmoy],
   ssr: true,
 })
 
