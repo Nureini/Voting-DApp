@@ -452,7 +452,12 @@ const Election = () => {
         getVotersDelegate &&
         getVotersDelegate !== "0x0000000000000000000000000000000000000000" ? (
           <p className="text-center mb-2">
-            Your delegate voter is: {getVotersDelegate as string}
+            Your delegate voter is:{" "}
+            {(getVotersDelegate as string).substring(0, 6)}...
+            {(getVotersDelegate as string).substring(
+              (getVotersDelegate as string).length - 4,
+              (getVotersDelegate as string).length
+            )}
           </p>
         ) : (
           <>
@@ -590,7 +595,7 @@ const Election = () => {
 
         {(getDelegateVotersChoiceData as string) !== "" &&
           getDelegateVotersChoiceData !== undefined && (
-            <p className="text-xl font-bold capitalize text-green-600 mb-1">
+            <p className="text-center text-xl font-bold capitalize text-green-600 mb-1">
               For the delegate you voted for Option:{" "}
               {getDelegateVotersChoiceData as string}
             </p>

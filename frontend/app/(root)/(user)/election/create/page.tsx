@@ -185,7 +185,7 @@ const Create = () => {
           </div>
 
           <div className="flex flex-col items-start w-full">
-            <label htmlFor="startDate">Election Start Time (in Seconds):</label>
+            <label htmlFor="startDate">Election Start Time</label>
             <input
               className="bg-gray-50 text-black font-semibold border border-blue-600 rounded-md py-2 px-4 mb-4 w-full focus:outline-none"
               type="datetime-local"
@@ -195,14 +195,14 @@ const Create = () => {
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setElectionStartTime(e.target.value)
               }
-              placeholder="Enter Election Start Time (in Seconds)"
+              placeholder="Enter Election Start Time"
               required
               disabled={isTransactionLoading || isTransactionSuccesful}
             />
           </div>
 
           <div className="flex flex-col items-start w-full">
-            <label htmlFor="endDate">Election End Time (in Seconds):</label>
+            <label htmlFor="endDate">Election End Time:</label>
             <input
               className="bg-gray-50 text-black font-semibold border border-blue-600 rounded-md py-2 px-4 mb-4 w-full focus:outline-none"
               type="datetime-local"
@@ -212,7 +212,7 @@ const Create = () => {
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setElectionEndTime(e.target.value)
               }
-              placeholder="Enter Election End Time (in Seconds)"
+              placeholder="Enter Election End Time"
               required
               disabled={isTransactionLoading || isTransactionSuccesful}
             />
