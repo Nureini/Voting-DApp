@@ -110,7 +110,7 @@ const Election = () => {
   useEffect(() => {
     const refreshNftMetadataOnOpensea = async () => {
       await axios.post(
-        `https://testnets-api.opensea.io/api/v2/chain/mumbai/contract/${VoteCreationNFTAddress}/nfts/${id}/refresh`
+        `https://testnets-api.opensea.io/api/v2/chain/amoy/contract/${VoteCreationNFTAddress}/nfts/${id}/refresh`
       )
     }
 
@@ -430,7 +430,7 @@ const Election = () => {
         </p>
 
         <Link
-          href={`https://testnets.opensea.io/assets/mumbai/${VoteCreationNFTAddress}/${id}`}
+          href={`https://testnets.opensea.io/assets/amoy/${VoteCreationNFTAddress}/${id}`}
           target="_blank"
         >
           <Image
