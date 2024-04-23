@@ -6,6 +6,9 @@ import {DeployVoterRegistration} from "../../script/DeployVoterRegistration.s.so
 import {VoterRegistration} from "../../src/VoterRegistration.sol";
 import {Test, console} from "forge-std/Test.sol";
 
+/**
+ * VoterRegistration Unit Tests used to break down and test each function of the VoterRegistration smart contract.
+ */
 contract VoterRegistrationTest is Test {
     VoterRegistration voterRegistration;
 

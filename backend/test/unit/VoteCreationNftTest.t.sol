@@ -12,6 +12,9 @@ import {DeployVoterRegistration} from "../../script/DeployVoterRegistration.s.so
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+/**
+ * VoteCreationNFT Unit Tests used to break down and test each function of the VoteCreationNFT smart contract.
+ */
 contract VoteCreationNFTTest is Test {
     using Strings for uint256;
 

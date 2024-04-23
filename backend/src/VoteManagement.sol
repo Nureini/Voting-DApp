@@ -6,10 +6,12 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
 
+// Interface used to access function from Voter Registration Smart Contract
 interface IVoterRegistration {
     function isRegisteredVoter(address _voter) external view returns (bool);
 }
 
+// Interface used to access functions from Vote Creation NFT Smart Contract
 interface IVoteCreationNFT {
     function setTokenURI(uint256 _tokenId) external;
 
@@ -97,6 +99,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         uint256 _totalVotes
     );
 
+    // used to access whether or not token ID provided for an NFT exists.
     modifier isTokenIdValid(uint256 _tokenId) {
         if (!s_iVoteCreationNFT.exists(_tokenId)) {
             revert VoteManagement__TokenIdSpecifiedDoesNotExist();
@@ -104,6 +107,8 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         _;
     }
 
+    // ensures that address provided is valid
+    // user has to be a registered voter or a delegate voter
     modifier isAddressToVoteValid(uint256 _tokenId, address _user) {
         if (_user == address(0)) {
             revert VoteManagement__ZeroAddressNotAllowed();
@@ -118,8 +123,12 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         _;
     }
 
+    // if vote start time is reached this modifier ensures openVote() function is called if not already
+    // else if vote start time not reached a revert error will occur if openVote() function is called.
     modifier voteNotCurrentlyOpen(uint256 _tokenId) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
+
         if (
             properties.votingStatus == VotingStatus.PENDING &&
             properties.voteStartTime <= block.timestamp &&
@@ -135,8 +144,11 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         _;
     }
 
+    // if vote end time is reached this modifier ensures a revert error occurs in the case someone attempts to call any functions that would alter any election results.
     modifier voteEndTimeReached(uint256 _tokenId) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
+
         if (properties.voteEndTime <= block.timestamp) {
             revert VoteManagement__VoteEndTimeReached();
         }
@@ -144,6 +156,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     }
 
     constructor(address _voterRegistrationAddress) Ownable(msg.sender) {
+        // function sets Voter Registration Contract, which can be used to access the function above in the IVoterRegistration interface.
         i_iVoterRegistration = IVoterRegistration(_voterRegistrationAddress);
     }
 
@@ -187,6 +200,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
             revert VoteManagement__VoteDurationNotValid();
         }
 
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
         if (properties.isSet) {
@@ -208,6 +222,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     }
 
     function openVote(uint256 _tokenId) public isTokenIdValid(_tokenId) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
         if (block.timestamp < properties.voteStartTime) {
@@ -242,22 +257,28 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         voteNotCurrentlyOpen(_tokenId)
         voteEndTimeReached(_tokenId)
     {
-        VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
+        
 
+        // if user has already voted a revert error occurs.
         if (properties.hasVoted[_user]) {
             revert VoteManagement__AlreadyVoted();
         }
 
+        // if vote choice provided is invalid a revert error occurs.
         if (_choiceIndex >= properties.choices.length) {
             revert VoteManagement__InvalidChoiceIndex();
         }
 
+        // sets the index of the selected vote choice
         properties.votersChoiceIndex[_user] = _choiceIndex;
 
-        // add a vote to the choice that was selected
+        // adds a vote to the choice that was selected
         string memory selectedChoice = properties.choices[_choiceIndex];
+
+        // updates what each choice in the elections score is, which would ultimately determine how many votes each choice gets.
         properties.eachChoicesVotes[selectedChoice] += 1;
 
+        // used to set that the user has voted.
         properties.hasVoted[_user] = true;
 
         properties.totalVotes++;
@@ -283,33 +304,42 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         voteNotCurrentlyOpen(_tokenId)
         voteEndTimeReached(_tokenId)
     {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
+        // if user hasn't already voted a revert error occurs because a user has to have initially casted a vote to have the option to alter their vote choice.
         if (!properties.hasVoted[_user]) {
             revert VoteManagement__MustVoteInOrderToChangeVote();
         }
 
+        // if user has reached their change vote limit which is a single instance a revert error occurs
         if (properties.changeVoteLimitReached[_user]) {
             revert VoteManagement__ChangeVoteLimitReached();
         }
 
-        // removes a vote from the choice the user previously selected.
+        // process to remove a vote from the choice the user previously selected.
         string memory choiceOfVoteToRemove = properties.choices[
             properties.votersChoiceIndex[_user]
         ];
         properties.eachChoicesVotes[choiceOfVoteToRemove] -= 1;
         properties.totalVotes--;
 
+
+        // if vote choice provided is invalid a revert error occurs.
         if (_choiceIndex >= properties.choices.length) {
             revert VoteManagement__InvalidChoiceIndex();
         }
 
+        // sets the index of the selected vote choice
         properties.votersChoiceIndex[_user] = _choiceIndex;
 
-        // add a vote to the choice that was selected
+        // adds a vote to the choice that was selected
         string memory selectedChoice = properties.choices[_choiceIndex];
+
+        // updates what each choice in the elections score is, which would ultimately determine how many votes each choice gets.
         properties.eachChoicesVotes[selectedChoice] += 1;
 
+        // used to set that user's change vote limit is reached here.
         properties.changeVoteLimitReached[_user] = true;
 
         properties.totalVotes++;
@@ -322,7 +352,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     }
 
     /**
-     * @dev used by Chainlink Keepers to check whether vote end time is reached which will trigger the performUpkeep function to close the vote and reveal election winner
+     * @dev used by Chainlink Keepers, function is just used to check whether vote end time is reached which will trigger the performUpkeep function to close the vote and reveal election winner
      */
     function checkUpkeep(
         bytes calldata checkData
@@ -405,12 +435,18 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
             revert VoteManagement__UnableToSetYourselfAsADelegateVoter();
         }
 
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
+
+        // if a delegate voter is already in use by someone else, a user will not be allowed to set this delegate voter for themselves. 
         if (properties.delegateToVoter[_delegateVoter] != address(0)) {
             revert VoteManagement__DelegateVoterAlreadyBeingUsedBySomeoneElse();
         }
 
+        // sets users delegate voter
         properties.voterToDelegate[_voter] = _delegateVoter;
+
+        // set as a helper to know what user a delegate voter is associated with
         properties.delegateToVoter[_delegateVoter] = _voter;
     }
 
@@ -426,8 +462,10 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
             bool doesWinnerExist
         )
     {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
+        // ensures that vote winner isn't returned until election has been closed otherwise a revert error will occur 
         if (
             properties.voteEndTime >= block.timestamp &&
             properties.votingStatus != VotingStatus.CLOSED
@@ -437,8 +475,11 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
 
         winningChoiceIndex = type(uint256).max;
         winningChoiceTotalVotes = 0;
+
+        // initally set to false in the case there aren't any winners
         doesWinnerExist = false;
 
+        // for loop iterates through all the choices available within an election and tallys up the total votes for each choice and returns the vote winner
         for (uint256 i = 0; i < properties.choices.length; i++) {
             uint256 totalVotesForSpecificChoice = getTotalVotesForEachChoice(
                 _tokenId,
@@ -483,6 +524,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getVotingStatus(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (VotingStatus) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.votingStatus;
     }
@@ -490,6 +532,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function _getVotingStatus(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (string memory) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         if (properties.votingStatus == VotingStatus.PENDING) {
             return "PENDING";
@@ -509,6 +552,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
 
         string[] memory allVoteNames = new string[](totalSupply_tokenIds);
         for (uint256 i = 0; i < totalSupply_tokenIds; i++) {
+            // accesses election properties for a specific election with identifier _tokenID
             VoteProperties storage properties = s_tokenIdToVoteProperties[i];
             allVoteNames[i] = properties.voteName;
         }
@@ -519,6 +563,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getVoteName(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (string memory) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.voteName;
     }
@@ -526,6 +571,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getVoteDescription(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (string memory) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.voteDescription;
     }
@@ -533,6 +579,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getVoteStartTime(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (string memory) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.voteStartTime.toString();
     }
@@ -540,6 +587,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getVoteEndTime(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (string memory) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.voteEndTime.toString();
     }
@@ -547,6 +595,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getTotalVotes(
         uint256 _tokenId
     ) public view isTokenIdValid(_tokenId) returns (uint256) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.totalVotes;
     }
@@ -554,6 +603,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getVoteChoices(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (string[] memory) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.choices;
     }
@@ -562,6 +612,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         uint256 _tokenId,
         uint256 _choiceIndex
     ) public view isTokenIdValid(_tokenId) returns (uint256) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         string memory choice = properties.choices[_choiceIndex];
         return properties.eachChoicesVotes[choice];
@@ -571,6 +622,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         uint256 _tokenId,
         address _voter
     ) external view isTokenIdValid(_tokenId) returns (bool) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.hasVoted[_voter];
     }
@@ -579,6 +631,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         uint256 _tokenId,
         address _voter
     ) external view isTokenIdValid(_tokenId) returns (string memory) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
         if (properties.hasVoted[_voter]) {
@@ -594,6 +647,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         uint256 _tokenId,
         address _voter
     ) external view isTokenIdValid(_tokenId) returns (bool) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.changeVoteLimitReached[_voter];
     }
@@ -602,6 +656,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         uint256 _tokenId,
         address _voter
     ) public view isTokenIdValid(_tokenId) returns (address) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.voterToDelegate[_voter];
     }
@@ -610,6 +665,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         uint256 _tokenId,
         address _delegate
     ) public view isTokenIdValid(_tokenId) returns (address) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.delegateToVoter[_delegate];
     }
@@ -617,6 +673,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
     function getIsVotePropertiesSet(
         uint256 _tokenId
     ) external view isTokenIdValid(_tokenId) returns (bool) {
+        // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
         return properties.isSet;
     }

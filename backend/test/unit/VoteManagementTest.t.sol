@@ -11,6 +11,9 @@ import {VoterRegistration} from "../../src/VoterRegistration.sol";
 import {DeployVoterRegistration} from "../../script/DeployVoterRegistration.s.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
+/**
+ * VoteManagement Unit Tests used to break down and test each function of the VoteManagement smart contract.
+ */
 contract VoteManagementTest is Test {
     using Strings for uint256;
 

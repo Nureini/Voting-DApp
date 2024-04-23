@@ -11,6 +11,9 @@ import {VoterRegistration} from "../../src/VoterRegistration.sol";
 import {DeployVoterRegistration} from "../../script/DeployVoterRegistration.s.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
+/**
+ * Integration test that is used to simulate the whole election process.
+ */
 contract VoteManagementTest is Test {
     using Strings for uint256;
 

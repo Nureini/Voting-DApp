@@ -7,6 +7,7 @@ import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+// Interface used to access functions from Vote Management Smart Contract
 interface IVoteManagement {
     function initializeVoteProperties(
         uint256 _tokenId,
@@ -67,17 +68,15 @@ contract VoteCreationNFT is ERC721URIStorage, Ownable {
 
     using Strings for uint256;
 
-    enum Choice {
-        Against,
-        For
-    }
-
     IVoteManagement private s_iVoteManagement;
     bool private s_isIVoteManagementInitialized;
     uint256 private s_tokenCounter;
 
     constructor() ERC721("VoteCreationNFT", "VOTE") Ownable(msg.sender) {}
 
+    /**
+     * @notice function sets Vote Management Contract, which can be used to access the functions above in the IVoteManagement interface.
+     */
     function setVoteManagementContract(
         address _voteManagementAddress
     ) external onlyOwner {
@@ -94,7 +93,8 @@ contract VoteCreationNFT is ERC721URIStorage, Ownable {
     }
 
     /**
-     * @notice onlyOwner can create an election
+     * @notice function used to create an NFT for each election created.
+     * @dev onlyOwner can create an election
      * @param _voteName - Name of the vote
      * @param _voteDescription - Description of the vote
      * @param _voteStartTime  - Start time of the vote in seconds
@@ -137,6 +137,10 @@ contract VoteCreationNFT is ERC721URIStorage, Ownable {
         _setTokenURI(_tokenId, getTokenURI(_tokenId));
     }
 
+    /**
+     * @notice - returns the token URI that stores all the NFT metadata/properties.
+     * @param _tokenId - used to access specific election
+     */
     function getTokenURI(uint256 _tokenId) public view returns (string memory) {
         bytes memory dataURI = abi.encodePacked(
             "{",
@@ -166,6 +170,10 @@ contract VoteCreationNFT is ERC721URIStorage, Ownable {
             );
     }
 
+    /**
+     * @notice - returns NFT image created on chain, image is created as an svg. NFT image is adapted depending on whether election status is `INPROGRESS` or `CLOSED`.
+     * @param _tokenId - used to access specific election
+     */
     function getImageURI(uint256 _tokenId) public view returns (string memory) {
         bytes memory svg;
 
@@ -231,14 +239,17 @@ contract VoteCreationNFT is ERC721URIStorage, Ownable {
             );
     }
 
+    // helper function - checks to see if an NFT exists for specific tokenID
     function exists(uint256 tokenId) external view returns (bool) {
         return _exists(tokenId);
     }
 
+    // helper function - returns total amount of Election NFT's created
     function getTotalSupply() external view returns (uint256) {
         return s_tokenCounter;
     }
 
+    // helper function - returns VoteManagementAddress Contract
     function getAddressOfVoteManagementContract()
         external
         view
