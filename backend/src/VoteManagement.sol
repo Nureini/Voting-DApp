@@ -257,7 +257,8 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         voteNotCurrentlyOpen(_tokenId)
         voteEndTimeReached(_tokenId)
     {
-        
+        // accesses election properties for a specific election with identifier _tokenID
+        VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
         // if user has already voted a revert error occurs.
         if (properties.hasVoted[_user]) {
@@ -323,7 +324,6 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         ];
         properties.eachChoicesVotes[choiceOfVoteToRemove] -= 1;
         properties.totalVotes--;
-
 
         // if vote choice provided is invalid a revert error occurs.
         if (_choiceIndex >= properties.choices.length) {
@@ -438,7 +438,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
-        // if a delegate voter is already in use by someone else, a user will not be allowed to set this delegate voter for themselves. 
+        // if a delegate voter is already in use by someone else, a user will not be allowed to set this delegate voter for themselves.
         if (properties.delegateToVoter[_delegateVoter] != address(0)) {
             revert VoteManagement__DelegateVoterAlreadyBeingUsedBySomeoneElse();
         }
@@ -465,7 +465,7 @@ contract VoteManagement is Ownable, AutomationCompatibleInterface {
         // accesses election properties for a specific election with identifier _tokenID
         VoteProperties storage properties = s_tokenIdToVoteProperties[_tokenId];
 
-        // ensures that vote winner isn't returned until election has been closed otherwise a revert error will occur 
+        // ensures that vote winner isn't returned until election has been closed otherwise a revert error will occur
         if (
             properties.voteEndTime >= block.timestamp &&
             properties.votingStatus != VotingStatus.CLOSED
