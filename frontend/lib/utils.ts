@@ -15,7 +15,7 @@ export const formatTimestamp = (timestamp: number): string => {
   const convertTimestampToMilliseconds = timestamp * 1000
   const date = new Date(convertTimestampToMilliseconds)
 
-  return date.toUTCString()
+  return date.toLocaleString()
 }
 
 export const isVoteStartTimeReached = (electionStartTime: number): boolean => {
