@@ -5,9 +5,12 @@ import axios from "axios"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
+import { useDisconnect } from "wagmi"
 
 const Profile = () => {
   const router = useRouter()
+
+  const { disconnect: disconnectConnectedWallet } = useDisconnect()
 
   const { data: userSession, update } = useSession()
 
@@ -65,6 +68,11 @@ const Profile = () => {
       .catch((error: Error) => {
         setErrMsg(`Error: ${error.message}`)
       })
+  }
+
+  const handleSignOutBtn = () => {
+    disconnectConnectedWallet()
+    signOut()
   }
 
   return (
@@ -135,7 +143,7 @@ const Profile = () => {
           <button
             type="button"
             className="bg-red-600 hover:bg-red-700 text-gray-50 font-bold py-2 px-4 rounded-lg w-72"
-            onClick={() => signOut()}
+            onClick={handleSignOutBtn}
           >
             Sign Out
           </button>
