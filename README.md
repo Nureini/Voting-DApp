@@ -8,6 +8,7 @@
 
 ### Quickstart requirement
 - install [nodejs](https://nodejs.org/en)
+- create and setup .env file in frontend directory -> use .env.example file in the frontend directory  to help.
   
 ```
 cd frontend
