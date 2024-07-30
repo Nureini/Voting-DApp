@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
-import { signIn, signOut, useSession } from 'next-auth/react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { signIn, signOut, useSession } from "next-auth/react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 const Home = () => {
   const router = useRouter()
@@ -13,9 +13,9 @@ const Home = () => {
     <div
       className="h-screen flex items-center justify-center"
       style={{
-        backgroundImage: 'url(/1.jpg)',
-        backgroundBlendMode: 'multiply',
-        backgroundColor: 'rgba(169, 169, 169, 0.8)',
+        backgroundImage: "url(/1.jpg)",
+        backgroundBlendMode: "multiply",
+        backgroundColor: "rgba(169, 169, 169, 0.8)",
       }}
     >
       <div className="text-gray-50 text-center">
@@ -50,7 +50,7 @@ const Home = () => {
               </Link>
               <button
                 className="bg-blue-600 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 rounded-lg mr-4"
-                onClick={() => router.push('/auth/signup')}
+                onClick={() => router.push("/auth/signup")}
               >
                 Sign Up
               </button>
