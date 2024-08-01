@@ -10,6 +10,7 @@ import {DeployVoteCreationNFT} from "../../script/DeployVoteCreationNFT.s.sol";
 import {VoterRegistration} from "../../src/VoterRegistration.sol";
 import {DeployVoterRegistration} from "../../script/DeployVoterRegistration.s.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 /**
  * VoteManagement Unit Tests used to break down and test each function of the VoteManagement smart contract.
@@ -151,7 +152,10 @@ contract VoteManagementTest is Test {
     function testRevertsIfTokenIdDoesntExistToInitializeNft() external {
         vm.prank(address(s_voteCreationNFT));
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.initializeVoteProperties(
             INVALID_TOKEN_ID,
@@ -199,7 +203,10 @@ contract VoteManagementTest is Test {
 
     function testRevertsOpenVoteIfInvalidTokenId() external {
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.openVote(INVALID_TOKEN_ID);
     }
@@ -254,7 +261,10 @@ contract VoteManagementTest is Test {
 
     function testRevertsUpdateVoteIfInvalidTokenId() external {
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.updateVoteCount(
             s_voter,
@@ -475,7 +485,10 @@ contract VoteManagementTest is Test {
 
     function testRevertsChangeVoteIfInvalidTokenId() external {
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.changeVote(
             s_voter,
@@ -663,7 +676,10 @@ contract VoteManagementTest is Test {
     // checkUpkeep Function Tests
     function testUpkeepRevertsIfTokenIdGivenInCheckDataIsInvalid() external {
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.checkUpkeep(INVALID_PERFORM_DATA);
     }
@@ -685,7 +701,10 @@ contract VoteManagementTest is Test {
     // closeVote/performUpkeep Function Tests
     function testRevertsCloseVoteIfInvalidTokenId() external {
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.performUpkeep(INVALID_PERFORM_DATA);
     }
@@ -754,7 +773,10 @@ contract VoteManagementTest is Test {
 
         vm.prank(s_voter);
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.setDelegateVoter(
             INVALID_TOKEN_ID,
@@ -855,7 +877,10 @@ contract VoteManagementTest is Test {
     // _getVoteWinner Function Test
     function testRevertsGetVoteWinnerIfInvalidTokenId() external {
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement._getVoteWinner(INVALID_TOKEN_ID);
     }
@@ -871,47 +896,74 @@ contract VoteManagementTest is Test {
 
     function testRevertsGetPropertiesFunctionsIfInvalidTokenIds() external {
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getVotingStatus(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement._getVotingStatus(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getVoteName(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getVoteDescription(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getVoteStartTime(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getVoteEndTime(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getVoteChoices(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getTotalVotes(INVALID_TOKEN_ID);
 
         vm.expectRevert(
-            VoteManagement.VoteManagement__TokenIdSpecifiedDoesNotExist.selector
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                INVALID_TOKEN_ID
+            )
         );
         s_voteManagement.getIsVotePropertiesSet(INVALID_TOKEN_ID);
     }

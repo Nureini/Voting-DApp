@@ -241,7 +241,8 @@ contract VoteCreationNFT is ERC721URIStorage, Ownable {
 
     // helper function - checks to see if an NFT exists for specific tokenID
     function exists(uint256 tokenId) external view returns (bool) {
-        return _exists(tokenId);
+        address owner = ownerOf(tokenId);
+        return owner != address(0);
     }
 
     // helper function - returns total amount of Election NFT's created
