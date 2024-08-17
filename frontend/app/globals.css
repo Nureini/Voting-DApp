@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .custom-height {
+    height: calc(100vh - 80px - 56px);
+  }
+}
